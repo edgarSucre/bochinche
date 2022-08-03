@@ -7,8 +7,9 @@ type Room struct {
 }
 
 type Chatter struct {
-	Name     string
+	UserName string
 	Password string
+	Email    string
 }
 
 type Service interface {

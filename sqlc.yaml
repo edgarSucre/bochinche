@@ -3,7 +3,7 @@ packages:
   - name: "postgres"
     path: "./repository/postgres/"
     queries: "./repository/postgres/queries/"
-    schema: "./configs/sql/"
+    schema: "./config/migrations/"
     engine: "postgresql"
     emit_prepared_queries: false
     emit_interface: false

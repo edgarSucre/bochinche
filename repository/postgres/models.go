@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+type Chatter struct {
+	Username  string
+	Password  string
+	Email     string
+	CreatedAt time.Time
+}
+
 type Room struct {
 	ID        int64
 	Name      string

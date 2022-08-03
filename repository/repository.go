@@ -1,4 +1,4 @@
-package postgres
+package repository
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 )
 
 type ChatRepository interface {
-	CreateRoom(context.Context, domain.Room) error
+	CreateRoom(context.Context, string) (domain.Room, error)
 	ListRooms(context.Context) ([]domain.Room, error)
 	// RegisterChatter(context.Context, domain.Chatter) error
 	// CreateSession(context.Context) error

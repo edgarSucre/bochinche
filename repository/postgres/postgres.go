@@ -2,12 +2,18 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/edgarSucre/bochinche/domain"
 )
 
 type PostgresRepository struct {
 	q *Queries
+}
+
+func NewRepository(conn *sql.DB) PostgresRepository {
+
+	return PostgresRepository{New(conn)}
 }
 
 func (r *PostgresRepository) CreateRoom(ctx context.Context, name string) (domain.Room, error) {
@@ -32,4 +38,18 @@ func (r *PostgresRepository) ListRooms(ctx context.Context) ([]domain.Room, erro
 	}
 
 	return rooms, nil
+}
+
+func (r *PostgresRepository) RegisterChatter(ctx context.Context, params domain.Chatter) error {
+	err := r.q.RegisterChatter(ctx, RegisterChatterParams{
+		Username: params.UserName,
+		Password: params.Password,
+		Email:    params.Email,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
