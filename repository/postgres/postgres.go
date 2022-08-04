@@ -40,10 +40,15 @@ func (r *PostgresRepository) ListRooms(ctx context.Context) ([]domain.Room, erro
 	return rooms, nil
 }
 
-func (r *PostgresRepository) RegisterChatter(ctx context.Context, params domain.Chatter) error {
-	err := r.q.RegisterChatter(ctx, RegisterChatterParams{
+func (r *PostgresRepository) RegisterChatter(ctx context.Context, params domain.ChatterParams) error {
+	pass, err := hashPassword(params.Password)
+	if err != nil {
+		return err
+	}
+
+	err = r.q.RegisterChatter(ctx, RegisterChatterParams{
 		Username: params.UserName,
-		Password: params.Password,
+		Password: pass,
 		Email:    params.Email,
 	})
 

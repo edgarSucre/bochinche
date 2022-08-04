@@ -4,26 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+
+	"github.com/edgarSucre/bochinche/domain"
 )
-
-//TODO: add validation
-
-type CreateRoomRequest struct {
-	Name string `json:"name"`
-}
-
-//TODO: use this
-type RoomResponse struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
-}
 
 func (s *Server) CreateRoomHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var request CreateRoomRequest
+	var request domain.RoomParams
 
 	//TODO: verify content type, verify the body object fir unknow fields,
 	err := json.NewDecoder(r.Body).Decode(&request)
