@@ -19,6 +19,7 @@ func (s *Server) CreateRoomHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		setErrorResponse(w, "Couldn't read the room name")
+		return
 	}
 
 	room, err := s.repo.CreateRoom(ctx, request.Name)
@@ -26,12 +27,14 @@ func (s *Server) CreateRoomHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		setErrorResponse(w, "Couldn't create the room")
+		return
 	}
 
 	data, err := json.Marshal(room)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		setErrorResponse(w, err.Error())
+		return
 	}
 
 	setResponse(w, data)
@@ -46,12 +49,14 @@ func (s *Server) ListRoomsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		setErrorResponse(w, "Couldn't retrieve the room list")
+		return
 	}
 
 	data, err := json.Marshal(rooms)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		setErrorResponse(w, err.Error())
+		return
 	}
 
 	setResponse(w, data)

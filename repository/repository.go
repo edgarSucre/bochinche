@@ -10,5 +10,5 @@ type ChatRepository interface {
 	CreateRoom(context.Context, string) (domain.Room, error)
 	ListRooms(context.Context) ([]domain.Room, error)
 	RegisterChatter(context.Context, domain.ChatterParams) error
-	// CreateSession(context.Context) error
+	AreCredentialsValid(context.Context, domain.VerifyChatterParams) error
 }

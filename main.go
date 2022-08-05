@@ -23,7 +23,7 @@ func main() {
 
 	conn, err := sql.Open("pgx", dbSource)
 	if err != nil {
-		log.Fatal("Could not connect to the DB", err)
+		log.Fatal("Could not connect to the DB")
 	}
 	defer conn.Close()
 
