@@ -7,6 +7,7 @@ import (
 
 	"github.com/edgarSucre/bochinche/api"
 	"github.com/edgarSucre/bochinche/bot"
+	"github.com/edgarSucre/bochinche/config"
 	"github.com/edgarSucre/bochinche/mq/rabbitmq"
 	"github.com/edgarSucre/bochinche/repository/postgres"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -15,8 +16,21 @@ import (
 
 func main() {
 
+	//environmnet reading
+	env, err := config.GetEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// MQ setting
-	connection, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	rabbitUrl := fmt.Sprintf(
+		"amqp://%s:%s@%s:%s",
+		env["RABBIT_USER"],
+		env["RABBIT_PASS"],
+		env["RABBIT_HOST"],
+		env["RABBIT_PORT"],
+	)
+	connection, err := amqp.Dial(rabbitUrl)
 	if err != nil {
 		log.Fatal("RabbitMQ: Could not connect")
 	}
@@ -35,16 +49,16 @@ func main() {
 		log.Fatal("RabbitMQ could not start")
 	}
 
-	bot := bot.New(mqClient)
+	bot := bot.New(mqClient, env)
 	go bot.ListenForRequest()
 
 	dbSource := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s?sslmode=disable",
-		"root",
-		"secret",
-		"localhost",
-		"5432",
-		"chat",
+		env["DB_USER"],
+		env["DB_PASS"],
+		env["DB_HOST"],
+		env["DB_PORT"],
+		env["DB_NAME"],
 	)
 
 	conn, err := sql.Open("pgx", dbSource)
@@ -58,5 +72,5 @@ func main() {
 	server := api.New(&repository)
 
 	//Use logrus https://github.com/sirupsen/logrus
-	log.Fatal(server.Start(mqClient))
+	log.Fatal(server.Start(mqClient, env))
 }

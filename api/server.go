@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,7 +28,7 @@ func New(repo domain.ChatRepository) *Server {
 	}
 }
 
-func (s *Server) Start(mqClient domain.Broker) error {
+func (s *Server) Start(mqClient domain.Broker, env map[string]string) error {
 	s.Router.HandleFunc("/rooms", s.CreateRoomHandler).Methods("POST")
 	s.Router.HandleFunc("/rooms", s.ListRoomsHandler).Methods("GET")
 	s.Router.HandleFunc("/chatter", s.RegisterChatterHandler).Methods("POST")
@@ -40,17 +41,18 @@ func (s *Server) Start(mqClient domain.Broker) error {
 	}
 
 	hub := newHub(s.repo, responseConsumer, mqClient.PublishQuoteRequest)
-	//hub := newHub(s.repo, mqClient.PublishQuoteRequest)
 	go hub.run()
 
 	s.Router.HandleFunc("/ws/{roomID}", func(w http.ResponseWriter, r *http.Request) {
 		s.serveWs(hub, w, r)
 	})
 
-	log.Println("listing on port 8080")
+	log.Printf("listing on port %s\n", env["API_PORT"])
 
-	return http.ListenAndServe(":8080", handlers.CORS(
+	return http.ListenAndServe(fmt.Sprintf(":%s", env["API_PORT"]), handlers.CORS(
 		handlers.AllowCredentials(),
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}),
+		handlers.AllowedOriginValidator(func(s string) bool {
+			return true
+		}),
 	)(&s.Router))
 }

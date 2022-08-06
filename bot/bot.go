@@ -16,10 +16,10 @@ type Bot struct {
 	fetchUrl string
 }
 
-func New(c domain.Broker) *Bot {
+func New(c domain.Broker, env map[string]string) *Bot {
 	return &Bot{
 		client:   c,
-		fetchUrl: "https://stooq.com/q/l/",
+		fetchUrl: env["STOCK_PROVIDER"],
 	}
 }
 

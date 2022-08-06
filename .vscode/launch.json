@@ -10,9 +10,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${file}",
-            "env": {
-                "SESSION_KEY": "bochinche-key"
-            }
+            "envFile": "${fileDirname}/config/local.env"
         }
 
     ]
