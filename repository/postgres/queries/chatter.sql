@@ -5,7 +5,7 @@ INSERT INTO chatters (
     email
 ) VALUES (
     $1, $2, $3
-) RETURNING *;
+);
 
 -- name: VerifyChatter :one
 SELECT * FROM chatters

@@ -96,3 +96,38 @@ func (r *PostgresRepository) GetChatter(ctx context.Context, userName string) (d
 
 	return domain.Chatter{UserName: chatter.Username, CreatedAt: chatter.CreatedAt}, nil
 }
+
+func (r *PostgresRepository) SaveChat(ctx context.Context, params domain.ChatParam) error {
+	err := r.q.CreateChat(ctx, CreateChatParams{
+		Room:    params.Room,
+		Author:  params.Author,
+		Message: params.Message,
+	})
+
+	if err != nil {
+		return domain.ErrInternalServerError
+	}
+
+	return nil
+}
+
+func (r *PostgresRepository) ListChats(ctx context.Context, room string) ([]domain.Chat, error) {
+	chats := make([]domain.Chat, 0)
+
+	list, err := r.q.ListChats(ctx, room)
+	if err != nil {
+		return chats, domain.ErrInternalServerError
+	}
+
+	for _, v := range list {
+		chats = append(chats, domain.Chat{
+			ID:        v.ID,
+			CreatedAt: v.CreatedAt,
+			Room:      v.Room,
+			Author:    v.Author,
+			Message:   v.Message,
+		})
+	}
+
+	return chats, nil
+}

@@ -2,8 +2,10 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/edgarSucre/bochinche/domain"
@@ -55,9 +57,24 @@ func (c *Client) readMessages() {
 		}
 
 		strMessage := string(message)
-		message = []byte(fmt.Sprintf("%s: %s", c.chatter.UserName, strMessage))
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- broadCastSignal{message, c.room}
+
+		if !strings.HasPrefix(strMessage, "/stock=") {
+			c.hub.repo.SaveChat(context.Background(), domain.ChatParam{
+				Room:    c.room,
+				Author:  c.chatter.UserName,
+				Message: strMessage,
+			})
+
+			message = []byte(fmt.Sprintf("%s: %s", c.chatter.UserName, strMessage))
+			message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+			c.hub.broadcast <- broadCastSignal{message, c.room}
+		} else {
+			quote := strings.TrimPrefix(strMessage, "/stock=")
+			c.hub.publishFn(domain.QuoteMessage{
+				Room:    c.room,
+				Message: quote,
+			})
+		}
 	}
 }
 

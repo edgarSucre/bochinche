@@ -16,7 +16,7 @@ INSERT INTO chatters (
     email
 ) VALUES (
     $1, $2, $3
-) RETURNING username, password, email, created_at
+)
 `
 
 type RegisterChatterParams struct {

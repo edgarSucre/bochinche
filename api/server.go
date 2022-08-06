@@ -9,16 +9,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 
-	repo "github.com/edgarSucre/bochinche/repository"
+	domain "github.com/edgarSucre/bochinche/domain"
 )
 
 type Server struct {
 	Router       mux.Router
-	repo         repo.ChatRepository
+	repo         domain.ChatRepository
 	sessionStore sessions.Store
 }
 
-func New(repo repo.ChatRepository) *Server {
+func New(repo domain.ChatRepository) *Server {
 	sessionKey := os.Getenv("SESSION_KEY")
 	return &Server{
 		Router:       *mux.NewRouter(),
@@ -27,14 +27,20 @@ func New(repo repo.ChatRepository) *Server {
 	}
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start(mqClient domain.Broker) error {
 	s.Router.HandleFunc("/rooms", s.CreateRoomHandler).Methods("POST")
 	s.Router.HandleFunc("/rooms", s.ListRoomsHandler).Methods("GET")
 	s.Router.HandleFunc("/chatter", s.RegisterChatterHandler).Methods("POST")
 	s.Router.HandleFunc("/login", s.CreateSessionHandler).Methods("POST")
 	s.Router.HandleFunc("/logout", s.DestroySessionHandler).Methods("POST")
 
-	hub := newHub()
+	responseConsumer, err := mqClient.GetResponseConsummer()
+	if err != nil {
+		return err
+	}
+
+	hub := newHub(s.repo, responseConsumer, mqClient.PublishQuoteRequest)
+	//hub := newHub(s.repo, mqClient.PublishQuoteRequest)
 	go hub.run()
 
 	s.Router.HandleFunc("/ws/{roomID}", func(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +53,4 @@ func (s *Server) Start() error {
 		handlers.AllowCredentials(),
 		handlers.AllowedOrigins([]string{"http://localhost:3000"}),
 	)(&s.Router))
-	//return http.ListenAndServe(":8080", &s.Router)
 }

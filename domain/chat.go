@@ -33,11 +33,28 @@ type VerifyChatterParams struct {
 	Password string `json:"password"`
 }
 
-type Service interface {
-	CreateRoom(context.Context, RoomParams) error
+type ChatParam struct {
+	Room    string `json:"room"`
+	Author  string `json:"author"`
+	Message string `json:"message"`
+}
+
+type Chat struct {
+	ID        int64     `json:"id"`
+	Room      string    `json:"room"`
+	Author    string    `json:"author"`
+	Message   string    `json:"message"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+type ChatRepository interface {
+	CreateRoom(context.Context, string) (Room, error)
 	ListRooms(context.Context) ([]Room, error)
 	RegisterChatter(context.Context, ChatterParams) error
-	IsPasswordValid(context.Context, VerifyChatterParams) error
+	AreCredentialsValid(context.Context, VerifyChatterParams) error
+	GetChatter(context.Context, string) (Chatter, error)
+	SaveChat(context.Context, ChatParam) error
+	ListChats(context.Context, string) ([]Chat, error)
 }
 
 var (

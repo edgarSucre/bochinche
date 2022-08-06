@@ -6,11 +6,37 @@ import (
 	"log"
 
 	"github.com/edgarSucre/bochinche/api"
+	"github.com/edgarSucre/bochinche/bot"
+	"github.com/edgarSucre/bochinche/mq/rabbitmq"
 	"github.com/edgarSucre/bochinche/repository/postgres"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
+
+	// MQ setting
+	connection, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		log.Fatal("RabbitMQ: Could not connect")
+	}
+	defer connection.Close()
+
+	channel, err := connection.Channel()
+	if err != nil {
+		log.Fatal("RabbitMQ could not create channel")
+	}
+	defer channel.Close()
+
+	mqClient := rabbitmq.NewClient(channel)
+
+	err = mqClient.Start()
+	if err != nil {
+		log.Fatal("RabbitMQ could not start")
+	}
+
+	bot := bot.New(mqClient)
+	go bot.ListenForRequest()
 
 	dbSource := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%s/%s?sslmode=disable",
@@ -32,5 +58,5 @@ func main() {
 	server := api.New(&repository)
 
 	//Use logrus https://github.com/sirupsen/logrus
-	log.Fatal(server.Start())
+	log.Fatal(server.Start(mqClient))
 }

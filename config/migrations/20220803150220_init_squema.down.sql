@@ -1,3 +1,5 @@
 DROP TABLE IF EXISTS "rooms";
 
-DROP TABLE IF EXISTS "chatters"
+DROP TABLE IF EXISTS "chats";
+
+DROP TABLE IF EXISTS "chatters";    

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/edgarSucre/bochinche/domain"
@@ -63,6 +65,17 @@ func (s *Server) serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		send:    make(chan []byte, 256),
 		chatter: chatter,
 	}
+
+	//send chats when join a room
+	chats, err := s.repo.ListChats(r.Context(), roomName)
+	if err != nil {
+		log.Printf("couldn't retrieve chats for room %s\n", roomName)
+	}
+
+	for _, v := range chats {
+		client.send <- []byte(fmt.Sprintf("%s: %s", v.Author, v.Message))
+	}
+
 	chatRecord := chatterRecord{roomName, client}
 	client.hub.register <- chatRecord
 
