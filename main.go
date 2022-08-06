@@ -11,12 +11,18 @@ import (
 	"github.com/edgarSucre/bochinche/mq/rabbitmq"
 	"github.com/edgarSucre/bochinche/repository/postgres"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
 
 	//environmnet reading
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("config: could not load .env")
+	}
+
 	env, err := config.GetEnvironment()
 	if err != nil {
 		log.Fatal(err)

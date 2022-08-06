@@ -1,0 +1,74 @@
+version: "3.6"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'local-rabbit'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    networks:
+            new:
+                aliases:
+                    - rabbit
+  databaseservice:
+    image: postgres:latest
+    container_name: postgres-local
+    networks:
+            new:
+                aliases:
+                    - database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - new
+    depends_on:
+      databaseservice:
+        condition: service_healthy
+
+    volumes:
+      - ./config/migrations:/migrations
+
+    command:
+      [ "-path", "/migrations", "-database",  "postgres://${DB_USER}:${DB_PASS}@database:${DB_PORT}/${DB_NAME}?sslmode=disable", "up" ]
+
+  bochinche:
+    container_name: 'bochinche'
+    build: ./
+    ports:
+      - ${API_PORT}:${API_PORT}
+    networks:
+      - new
+    environment:
+      DB_NAME: chat
+      DB_PORT: 5432
+      DB_HOST: database
+      DB_USER: root
+      DB_PASS: secret
+      API_PORT: 8080
+      SESSION_KEY: bochinche-key
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+      RABBIT_HOST: rabbit
+      RABBIT_PORT: 5672
+      STOCK_PROVIDER: https://stooq.com/q/l/
+
+    depends_on:
+      - databaseservice
+      - rabbitmq
+
+networks:
+  new:
