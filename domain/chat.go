@@ -24,7 +24,7 @@ type ChatterParams struct {
 }
 
 type Chatter struct {
-	ChatterParams
+	UserName  string    `json:"userName"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 

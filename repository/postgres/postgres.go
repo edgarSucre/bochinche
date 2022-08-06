@@ -39,7 +39,7 @@ func (r *PostgresRepository) ListRooms(ctx context.Context) ([]domain.Room, erro
 	}
 
 	for _, v := range result {
-		rooms = append(rooms, domain.Room{Name: v.Name})
+		rooms = append(rooms, domain.Room{Name: v.Name, ID: v.ID, CreatedAt: v.CreatedAt})
 	}
 
 	return rooms, nil
@@ -74,7 +74,7 @@ func (r *PostgresRepository) AreCredentialsValid(ctx context.Context, params dom
 		if strings.Contains(err.Error(), "no rows") {
 			return domain.ErrNotFound
 		}
-		return domain.ErrBadParamInput
+		return domain.ErrInternalServerError
 	}
 
 	if !isPasswordValid(params.Password, chatter.Password) {
@@ -82,4 +82,17 @@ func (r *PostgresRepository) AreCredentialsValid(ctx context.Context, params dom
 	}
 
 	return nil
+}
+
+func (r *PostgresRepository) GetChatter(ctx context.Context, userName string) (domain.Chatter, error) {
+	chatter, err := r.q.VerifyChatter(ctx, userName)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows") {
+			return domain.Chatter{}, domain.ErrNotFound
+		}
+		return domain.Chatter{}, domain.ErrInternalServerError
+	}
+
+	return domain.Chatter{UserName: chatter.Username, CreatedAt: chatter.CreatedAt}, nil
 }

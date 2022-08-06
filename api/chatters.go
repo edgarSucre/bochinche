@@ -52,8 +52,8 @@ func (s *Server) CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := s.sessionStore.Get(r, "chat-session")
-	session.Values["authenticated"] = true
+	session, _ := s.sessionStore.New(r, "chat-session")
+	session.Values["username"] = params.UserName
 	err = session.Save(r, w)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -63,7 +63,7 @@ func (s *Server) CreateSessionHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) DestroySessionHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := s.sessionStore.Get(r, "chat-session")
-	session.Values["authenticated"] = false
+	session.Options.MaxAge = -1
 	session.Save(r, w)
 	setResponse(w, nil)
 }

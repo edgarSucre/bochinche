@@ -11,4 +11,5 @@ type ChatRepository interface {
 	ListRooms(context.Context) ([]domain.Room, error)
 	RegisterChatter(context.Context, domain.ChatterParams) error
 	AreCredentialsValid(context.Context, domain.VerifyChatterParams) error
+	GetChatter(context.Context, string) (domain.Chatter, error)
 }
