@@ -24,7 +24,7 @@ func GetEnvironment() (map[string]string, error) {
 	env["RABBIT_USER"] = os.Getenv("RABBIT_USER")
 	env["RABBIT_PASS"] = os.Getenv("RABBIT_PASS")
 	env["RABBIT_HOST"] = os.Getenv("RABBIT_HOST")
-	env["RABBIT_PORT"] = os.Getenv("RABBIT_PORT")
+	env["STOCK_PROVIDER"] = os.Getenv("STOCK_PROVIDER")
 
 	for k, v := range env {
 		if v == "" {

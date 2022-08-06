@@ -47,6 +47,9 @@ func (s *Server) Start(mqClient domain.Broker, env map[string]string) error {
 		s.serveWs(hub, w, r)
 	})
 
+	spa := spaHandler{staticPath: "public", indexPath: "index.html"}
+	s.Router.PathPrefix("/").Handler(spa)
+
 	log.Printf("listing on port %s\n", env["API_PORT"])
 
 	return http.ListenAndServe(fmt.Sprintf(":%s", env["API_PORT"]), handlers.CORS(
