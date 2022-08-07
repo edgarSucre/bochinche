@@ -11,13 +11,13 @@ This app uses postgres and rabbitmq docker containers. Configuration is set on t
 
 ## Running the tests
 There are only test for the postgres repository. These test require a test DB
+- Create the containers ```make containers```
 - Create the test db ```make createtestdb```
 - Run the migrations ```make migrateuptest```
 - Run the tests ```make test```
 
-
 ## Running the app
-- First run the containers ```make containers```
+- Create the containers ```make containers```
 - Run the migrations ```make migrateup```
 - Finally run the app ```go run main.go```
 - Open the [app](http://localhost:8080/)
