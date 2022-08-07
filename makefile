@@ -24,4 +24,13 @@ postgres:
 
 containers: rabbit postgres
 
-.PHONY: sqlc createdb dropdb migrateup migratedown
+createtestdb:
+	docker exec -it local-postgres createdb --user $(DB_USER) --owner=$(DB_USER) $(DB_TEST)
+
+migrateuptest:
+	migrate -path ./config/migrations -database postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_TEST)?sslmode=disable -verbose up
+
+test:
+	go test ./repository/postgres/... -count=1 -v
+
+.PHONY: sqlc createdb dropdb migrateup migratedown rabbit postgres

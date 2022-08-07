@@ -28,7 +28,7 @@ func (r *PostgresRepository) CreateRoom(ctx context.Context, name string) (domai
 		return domain.Room{}, domain.ErrInternalServerError
 	}
 
-	return domain.Room{Name: room.Name}, nil
+	return domain.Room{ID: room.ID, Name: room.Name, CreatedAt: room.CreatedAt}, nil
 }
 
 func (r *PostgresRepository) ListRooms(ctx context.Context) ([]domain.Room, error) {

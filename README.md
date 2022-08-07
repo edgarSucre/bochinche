@@ -9,6 +9,13 @@ This app uses postgres and rabbitmq docker containers. Configuration is set on t
 - docker
 - [migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate#unversioned) a golang based migration cli
 
+## Running the tests
+There are only test for the postgres repository. These test require a test DB
+- Create the test db ```make createtestdb```
+- Run the migrations ```make migrateuptest```
+- Run the tests ```make test```
+
+
 ## Running the app
 - First run the containers ```make containers```
 - Run the migrations ```make migrateup```
